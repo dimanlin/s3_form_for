@@ -1,0 +1,3 @@
+= s3_uploader_fields callback_url: nil, callback_param: 'model[image_url]', acl: 'private', key: "#{part_key}#{SecureRandom.uuid}.{extension}", key_starts_with: part_key, id: "s3-uploader", data: { s3_path_text_field: '#upload_s3_path', accepted_media_types_regex: accepted_media_types_js_regex }, conditions: [{ 'x-amz-server-side-encryption' => 'AES256'}]
+= hidden_field_tag 'x-amz-server-side-encryption', 'AES256'
+= hidden_field_tag :upload_s3_path

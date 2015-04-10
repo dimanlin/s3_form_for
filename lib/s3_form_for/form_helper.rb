@@ -1,11 +1,13 @@
 module S3DirectUpload
   module UploadHelper
-    def s3_uploader_form(options = {}, &block)
+
+    def s3_form_for(object, options = {})
+      options.deep_symbolize_keys!
       uploader = S3Uploader.new(options)
-      form_tag(uploader.url, uploader.form_options) do
+      form_for(object, uploader.form_options) do |f|
         uploader.fields.map do |name, value|
           hidden_field_tag(name, value)
-        end.join.html_safe + capture(&block)
+        end.join.html_safe + yield(f)
       end
     end
 
@@ -31,17 +33,14 @@ module S3DirectUpload
 
       def form_options
         {
-          id: @options[:id],
-          class: @options[:class],
           method: "post",
-          authenticity_token: false,
           multipart: true,
           data: {
             callback_url: @options[:callback_url],
             callback_method: @options[:callback_method],
             callback_param: @options[:callback_param]
           }.reverse_merge(@options[:data] || {})
-        }
+        }.merge({html: @options[:html] || {}})
       end
 
       def fields
