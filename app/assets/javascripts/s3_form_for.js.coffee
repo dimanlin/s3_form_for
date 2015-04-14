@@ -23,7 +23,7 @@ $.fn.S3Uploader = (options) ->
     progress_bar_target: null
     click_submit_target: null
     allow_multiple_files: true
-    remove_extends_fields: null
+    used_fields: ['utf8', 'key', 'acl', 'AWSAccessKeyId', 'policy', 'signature', 'success_action_status', 'X-Requested-With', 'content-type', 'file', 'x-amz-server-side-encryption']
     url: null
     disable_fields_after_submit: null
     allow_send_form_without_file: false
@@ -135,12 +135,13 @@ $.fn.S3Uploader = (options) ->
       formData: (form) ->
         data = form.serializeArray()
 
-        if settings.remove_extends_fields
-          data = data.filter (item, index) =>
-                  if $.inArray(item.name, settings.remove_extends_fields) == -1
-                    return true
-                  else
-                    return false
+
+
+        data = data.filter (item, index) =>
+                if $.inArray(item.name, settings.used_fields) == -1
+                  return false
+                else
+                  return true
 
         fileType = ""
         if "type" of @files[0]
