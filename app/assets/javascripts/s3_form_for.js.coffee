@@ -28,6 +28,31 @@ $.fn.S3Uploader = (options) ->
     disable_fields_after_submit: null
     allow_send_form_without_file: false
 
+  selectors =
+    s3_form: '#s3-uploader'
+    submit: '#form_submit'
+    cancel_upload: '#cancel_upload'
+    s3_path_text_field: $('#s3-uploader').data('s3_path_text_field')
+    main_form: $($('#s3-uploader').data('s3-path-text-field')).closest('form')
+    disable_fields: 'textarea,input[type=text],input[type=checkbox],select'
+    file_name_for_upload: '#file_name_for_upload'
+
+  enable_all_field: ->
+    $(@selectors.s3_form).find(@selectors.disable_fields).removeAttr('disabled')
+
+  reset_s3_uploder: ->
+    $('.upload_uploading').hide()
+    $('.upload_picking').show()
+    $('.progress-bar').removeAttr('style')
+
+  show_submit_button: ->
+    $(@selectors.submit).show()
+    $(@selectors.cancel_upload).addClass('hide')
+
+  show_cancel_button: ->
+    $(@selectors.submit).hide()
+    $(@selectors.cancel_upload).removeClass('hide')
+
   $.extend settings, options
 
   current_files = []
@@ -83,8 +108,21 @@ $.fn.S3Uploader = (options) ->
           else
             data.submit()
 
+      send: (e, data) =>
+        console.log('send')
+        $uploadForm.trigger('show_cancel_button')
+        console.log('send point 1')
+        $(selectors.cancel_upload).on 'click', (e) =>
+          data.xhr().abort()
+          $uploadForm.trigger('enable_all_field')
+          $uploadForm.trigger('reset_s3_uploder')
+          $uploadForm.trigger('show_submit_button')
+          return false
+
       start: (e) ->
-        $uploadForm.trigger("s3_uploads_start", [e])
+        $($uploadForm).find(".upload_picking").hide()
+        $($uploadForm).find(".upload_uploading").show().removeClass "hidden"
+        $("#upload_cancel_link").addClass "hidden"
 
       progress: (e, data) ->
         if data.context
@@ -167,6 +205,40 @@ $.fn.S3Uploader = (options) ->
         unless 'FormData' of window
           $uploadForm.find("input[name='key']").val(settings.path + key)
         data
+
+#    s3_upload_complete: (e, content) =>
+#      console.log('s3_upload_complete')
+#      @enable_all_field()
+#      # Note: on older IE, this is hit even on failure
+#      # if content.url?
+#      $(this).find(".upload_uploading").hide()
+#      $(this).find(".upload_finished").show().removeClass "hidden"
+#      $(@selectors.submit).removeClass("disabled").prop "disabled", false
+#      $("#upload_skip_link").removeClass "hidden"
+#      $("#upload_s3_path").val(content.filepath)
+#      $(@selectors.s3_form).submit()
+
+    $uploadForm.on 'show_cancel_button', ->
+      console.log('show_cancel_button')
+      $(selectors.submit).hide()
+      $(selectors.cancel_upload).removeClass('hide')
+
+
+    $uploadForm.on 'enable_all_field', ->
+      $(selectors.s3_form).find(selectors.disable_fields).removeAttr('disabled')
+
+    $uploadForm.on 'reset_s3_uploder', ->
+      $('.upload_uploading').hide()
+      $('.upload_picking').show()
+      $('.progress-bar').removeAttr('style')
+
+    $uploadForm.on 'show_submit_button', ->
+      $(selectors.submit).show()
+      $(selectors.cancel_upload).addClass('hide')
+  #
+    $uploadForm.on 'show_cancel_button', ->
+      $(selectors.submit).hide()
+      $(selectors.cancel_upload).removeClass('hide')
 
   build_content_object = ($uploadForm, file, result) ->
     content = {}
