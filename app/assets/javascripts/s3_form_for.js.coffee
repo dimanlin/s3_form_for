@@ -20,11 +20,10 @@ $.fn.S3Uploader = (options) ->
     before_add: null
     remove_completed_progress_bar: true
     remove_failed_progress_bar: false
-    progress_bar_target: null
+    progress_bar_target: $uploadForm.find('.progress')
     click_submit_target: null
     allow_multiple_files: true
     used_fields: ['utf8', 'key', 'acl', 'AWSAccessKeyId', 'policy', 'signature', 'success_action_status', 'X-Requested-With', 'content-type', 'file', 'x-amz-server-side-encryption']
-    url: null
     disable_fields_after_submit: null
     allow_send_form_without_file: false
 
@@ -37,27 +36,37 @@ $.fn.S3Uploader = (options) ->
     disable_fields: 'textarea,input[type=text],input[type=checkbox],select'
     file_name_for_upload: '#file_name_for_upload'
 
-#  enable_all_field: ->
-#    $(@selectors.s3_form).find(@selectors.disable_fields).removeAttr('disabled')
-#
-#  reset_s3_uploder: ->
-#    $('.upload_uploading').hide()
-#    $('.upload_picking').show()
-#    $('.progress-bar').removeAttr('style')
-#
-#  show_submit_button: ->
-#    $(@selectors.submit).show()
-#    $(@selectors.cancel_upload).addClass('hide')
-#
-#  show_cancel_button: ->
-#    $(@selectors.submit).hide()
-#    $(@selectors.cancel_upload).removeClass('hide')
-
   $.extend settings, options
 
   current_files = []
   forms_for_submit = []
   validation_form = true
+
+  $uploadForm.find('.file-field').on 'change', ->
+    # Populate thumb
+    if this.files && this.files[0] && /^image/.test(this.files[0].type) && window.FileReader isnt 'undefined' && Modernizr.canvas
+      # Browser supports File and Canvas APIs
+      file = this.files[0]
+
+      loadImage.parseMetaData file, (img) ->
+        # Get orientation
+        ornt = if img.exif? then img.exif.get("Orientation") else 1
+
+        # Set thumbnail
+        loadImage file, ((img) ->
+            imgElem = $(img)
+            imgElem.addClass 'img-responsive'
+            container = $("#upload_thumbnail").parent()
+            container.children().remove()
+            container.css 'text-align': 'center'
+            container.append imgElem
+          ),
+          maxHeight: 90
+          orientation: ornt
+          canvas: true
+    else
+      # Fallback; just use a placeholder
+      $('#upload_thumbnail').show().attr('src', assetPath('media/mrx-placeholder-120x90.png'))
 
   if settings.click_submit_target
     settings.click_submit_target.click =>
@@ -89,7 +98,7 @@ $.fn.S3Uploader = (options) ->
 
   setUploadForm = ->
     $uploadForm.fileupload
-      url: settings.url
+      url: $uploadForm.data('s3-url')
       add: (e, data) ->
         file = data.files[0]
         file.unique_id = Math.random().toString(36).substr(2,16)
