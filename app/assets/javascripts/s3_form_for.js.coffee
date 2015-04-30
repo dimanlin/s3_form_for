@@ -1,6 +1,7 @@
 #= require jquery-fileupload/basic
 #= require jquery-fileupload/vendor/tmpl
 
+
 $ = jQuery
 
 $.fn.S3Uploader = (options) ->
@@ -68,7 +69,9 @@ $.fn.S3Uploader = (options) ->
       # Fallback; just use a placeholder
       $('#upload_thumbnail').show().attr('src', assetPath('media/mrx-placeholder-120x90.png'))
 
+  console.log('1111111111111111111111111111111111111111')
   if settings.click_submit_target
+    console.log('22222222222222222222222222222222222222')
     settings.click_submit_target.click =>
       validation_form = true
       $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
@@ -88,12 +91,18 @@ $.fn.S3Uploader = (options) ->
         $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
           $(item).removeAttr('disabled')
 
+      console.log('ccccccccccccccccccccccccc')
+      console.log(validation_form)
       if  validation_form
-        form.submit() for form in forms_for_submit
+#        form.submit() for form in forms_for_submit
+        $(forms_for_submit).submit()
+        #$('#form_submit').click()
 
       if settings.allow_send_form_without_file && $uploadForm.find('#file_name_for_upload').text().length == 0
+        console.log('444444444444444444444444444444444444444444')
         true
       else
+        console.log('55555555555555555555555555555555555555')
         false
 
   setUploadForm = ->
@@ -115,12 +124,12 @@ $.fn.S3Uploader = (options) ->
             else
               forms_for_submit = [data]
           else
+            console.log('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
             data.submit()
 
       send: (e, data) =>
         console.log('send')
         $uploadForm.trigger('show_cancel_button')
-        console.log('send point 1')
         $(selectors.cancel_upload).on 'click', (e) =>
           data.xhr().abort()
           $uploadForm.trigger('enable_all_field')
@@ -129,16 +138,19 @@ $.fn.S3Uploader = (options) ->
           return false
 
       start: (e) ->
+        console.log('start')
         $($uploadForm).find(".upload_picking").hide()
         $($uploadForm).find(".upload_uploading").show().removeClass "hidden"
         $("#upload_cancel_link").addClass "hidden"
 
       progress: (e, data) ->
+        console.log('progress')
         if data.context
           progress = parseInt(data.loaded / data.total * 100, 10)
           data.context.find('.bar').css('width', progress + '%')
 
       done: (e, data) ->
+        console.log('done')
         content = build_content_object $uploadForm, data.files[0], data.result
 
         callback_url = $uploadForm.data('callback-url')
@@ -149,6 +161,7 @@ $.fn.S3Uploader = (options) ->
             type: $uploadForm.data('callback-method')
             url: callback_url
             data: content
+            dataType: 'json'
             beforeSend: ( xhr, settings )       ->
               event = $.Event('ajax:beforeSend')
               $uploadForm.trigger(event, [xhr, settings])
@@ -173,6 +186,7 @@ $.fn.S3Uploader = (options) ->
         $uploadForm.trigger("s3_uploads_complete", [content]) unless current_files.length
 
       fail: (e, data) ->
+        console.log('fail')
         content = build_content_object $uploadForm, data.files[0], data.result
         content.error_thrown = data.errorThrown
 
@@ -180,23 +194,32 @@ $.fn.S3Uploader = (options) ->
         $uploadForm.trigger("s3_upload_failed", [content])
 
       formData: (form) ->
+        console.log('formData 1')
+
         data = form.serializeArray()
+        console.log('form data 1.2')
+        console.log(data[0])
+        valid_data = []
+        for i in data
+          console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+          if $.inArray(i.name, settings.used_fields) == -1
+            console.log('1.2.1')
+          else
+            console.log('1.2.2')
+            valid_data.push(i)
 
+        console.log('1.2.3')
+        data = valid_data
 
-
-        data = data.filter (item, index) =>
-                if $.inArray(item.name, settings.used_fields) == -1
-                  return false
-                else
-                  return true
-
+        console.log('form data 1.3')
+        console.log(data)
         fileType = ""
         if "type" of @files[0]
           fileType = @files[0].type
         data.push
           name: "content-type"
           value: fileType
-
+        console.log('form datat 2')
         key = $uploadForm.data("key")
           .replace('{timestamp}', new Date().getTime())
           .replace('{unique_id}', @files[0].unique_id)
@@ -213,39 +236,56 @@ $.fn.S3Uploader = (options) ->
         # replace 'key' field to submit form
         unless 'FormData' of window
           $uploadForm.find("input[name='key']").val(settings.path + key)
+        console.log(data)
         data
 
     $uploadForm.on 'show_cancel_button', ->
+      console.log('show_cancel_button')
       $(selectors.submit).hide()
       $(selectors.cancel_upload).removeClass('hide')
 
 
     $uploadForm.on 'enable_all_field', ->
+      console.log('enable_all_field')
       $(selectors.s3_form).find(selectors.disable_fields).removeAttr('disabled')
 
     $uploadForm.on 'reset_s3_uploder', ->
+      console.log('reset_s3_uploder')
       $('.upload_uploading').hide()
       $('.upload_picking').show()
       $('.progress-bar').removeAttr('style')
 
     $uploadForm.on 'show_submit_button', ->
+      console.log('show_submit_button')
       $(selectors.submit).show()
       $(selectors.cancel_upload).addClass('hide')
 
     $uploadForm.on 'show_cancel_button', ->
+      console.log('show_cancel_button')
       $(selectors.submit).hide()
       $(selectors.cancel_upload).removeClass('hide')
 
     $uploadForm.on 's3_upload_complete', (e, content) =>
+      console.log('s3_upload_complete')
       $(selectors.s3_form).find(selectors.disable_fields).removeAttr('disabled')
+      console.log('s3_upload_complete 1')
       $uploadForm.find(".upload_uploading").hide()
+      console.log('s3_upload_complete 2')
       $uploadForm.find(".upload_finished").show().removeClass "hidden"
+      console.log('s3_upload_complete 3')
       $(selectors.submit).removeClass("disabled").prop "disabled", false
+      console.log('s3_upload_complete 4')
       $("#upload_skip_link").removeClass "hidden"
+      console.log('s3_upload_complete 5')
       $("#upload_s3_path").val(content.filepath)
+      console.log('s3_upload_complete 6')
+      console.log(selectors)
+      console.log(selectors.s3_form)
       $(selectors.s3_form).submit()
+      console.log('s3_upload_complete end')
 
   build_content_object = ($uploadForm, file, result) ->
+    console.log('zzzzzzzzzzzzzzzzzzzz')
     content = {}
     if result # Use the S3 response to set the URL to avoid character encodings bugs
       content.url            = $(result).find("Location").text()
@@ -265,13 +305,16 @@ $.fn.S3Uploader = (options) ->
     content
 
   has_relativePath = (file) ->
+    console.log('xxxxxxxxxxxxxxxxxxxxx')
     file.relativePath || file.webkitRelativePath
 
   build_relativePath = (file) ->
+    console.log('cccccccccccccccccccccc')
     file.relativePath || (file.webkitRelativePath.split("/")[0..-2].join("/") + "/" if file.webkitRelativePath)
 
   #public methods
   @initialize = ->
+    console.log('dddddddddddddddddddddddddddddddddd')
     # Save key for IE9 Fix
     $uploadForm.data("key", $uploadForm.find("input[name='key']").val())
 
