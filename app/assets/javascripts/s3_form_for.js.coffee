@@ -279,10 +279,16 @@ $.fn.S3Uploader = (options) ->
       console.log('s3_upload_complete 5')
       $("#upload_s3_path").val(content.filepath)
       console.log('s3_upload_complete 6')
-      console.log(selectors)
+      console.log('start submit')
       console.log(selectors.s3_form)
-      $(selectors.s3_form).submit()
-      console.log('s3_upload_complete end')
+      console.log($("#{selectors.s3_form} #form_submit").length)
+      $("#{selectors.s3_form} #form_submit").submit()
+#      Hack for IE9
+#      $("#{selectors.s3_form} #form_submit").submit (e) ->
+#        e.preventDefault();
+#        $(this).closest("form").submit()
+
+      $(selectors.s3_form).trigger('submit')
 
   build_content_object = ($uploadForm, file, result) ->
     console.log('zzzzzzzzzzzzzzzzzzzz')
