@@ -4,6 +4,8 @@ module S3DirectUpload
     def s3_form_for(object, options = {}, &block)
       options.deep_symbolize_keys!
       uploader = S3Uploader.new(options)
+      form_options = uploader.form_options
+      form_options.merge({method: :put}) unless object.new_record?
       form_for(object, uploader.form_options) do |f|
         uploader.fields.map do |name, value|
           hidden_field_tag(name, value)
@@ -33,7 +35,6 @@ module S3DirectUpload
 
       def form_options
         {
-          method: "post",
           multipart: true,
           data: {
             s3_url: url,
