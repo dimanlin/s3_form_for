@@ -30,7 +30,7 @@ module ActionView::Helpers
               end
 
               c << @template.content_tag('span', class: 'upload-footer') do
-                @template.content_tag('p', 'Accepted formats are:')
+                @template.content_tag('p', "Accepted formats are: #{options[:accepted_formats].join(', ').upcase}") if options[:accepted_formats]
               end
 
               c << @template.content_tag('div', class: 'upload_uploading hidden') do
