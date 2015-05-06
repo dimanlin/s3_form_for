@@ -5,7 +5,14 @@ module S3DirectUpload
       options.deep_symbolize_keys!
       uploader = S3Uploader.new(options)
       form_options = uploader.form_options
-      form_options.merge({method: :put}) unless object.new_record?
+
+      method = if (object.class == Array && !object.last.new_record?) || !object.last.new_record?
+                 {method: :put}
+               elsif object.last.new_record?
+                 {method: :post}
+               end
+
+      form_options.merge(method)
       form_for(object, uploader.form_options) do |f|
         uploader.fields.map do |name, value|
           hidden_field_tag(name, value)
