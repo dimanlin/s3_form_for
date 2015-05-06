@@ -6,9 +6,9 @@ module S3DirectUpload
       uploader = S3Uploader.new(options)
       form_options = uploader.form_options
 
-      method = if (object.class == Array && !object.last.new_record?) || !object.last.new_record?
+      method = if (object.class == Array && !object.last.new_record?) || (object.class != Array && !object.new_record?)
                  {method: :put}
-               elsif object.last.new_record?
+               elsif object.new_record?
                  {method: :post}
                end
 

@@ -99,6 +99,15 @@ $.fn.S3Uploader = (options) ->
 
   setUploadForm = ->
     $uploadForm.fileupload
+#      before_add: (file) ->
+#        console.log('checl mime')
+#        media_types = new RegExp($($uploadForm).find("input[name='file']").data('avalible-mime'), 'i')
+#        if media_types.test(file.type) or media_types.test(file.name)
+#          return true
+#        else
+#          alert "File is not a valid photo."
+#          return false
+
       url: $uploadForm.data('s3-url')
       add: (e, data) ->
         file = data.files[0]
