@@ -18,13 +18,16 @@ module ActionView::Helpers
         avi: 'video/x-msvideo',
 
         # report
-        pdf: 'application/pdf'
+        pdf: 'application/pdf',
+        # DICOM - ZIP
+        zip: 'application/zip'
       }.with_indifferent_access
 
       all_formats = []
       all_formats = options[:photo_formats] if options[:photo_formats].present?
       all_formats += options[:video_formats] if options[:video_formats].present?
       all_formats += options[:report_formats] if options[:report_formats].present?
+      all_formats += options[:dicom_formats] if options[:dicom_formats].present?
 
 
       available_mime = all_formats.map do |extention|
@@ -63,6 +66,7 @@ module ActionView::Helpers
                 z << @template.content_tag('p', "Photo: #{options[:photo_formats].join(', ').upcase}") if options[:photo_formats]
                 z << @template.content_tag('p', "Video: #{options[:video_formats].join(', ').upcase}") if options[:video_formats]
                 z << @template.content_tag('p', "Report: #{options[:report_formats].join(', ').upcase}") if options[:report_formats]
+                z << @template.content_tag('p', "DICOM: #{options[:dicom_formats].join(', ').upcase}") if options[:dicom_formats]
                 z
               end
 
