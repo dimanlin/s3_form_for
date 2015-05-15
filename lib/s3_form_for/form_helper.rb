@@ -8,7 +8,7 @@ module S3DirectUpload
 
       method = if (object.class == Array && !object.last.new_record?) || (object.class != Array && !object.new_record?)
                  {method: :put}
-               elsif object.new_record?
+               else
                  {method: :post}
                end
 

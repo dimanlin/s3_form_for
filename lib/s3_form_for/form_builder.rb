@@ -34,8 +34,7 @@ module ActionView::Helpers
       @template.content_tag('div', class: 'row') do
         @template.content_tag('div', class: 'col-md-12') do
           b = @template.content_tag('div', class: 'col-md-2') do
-            a = @template.image_tag("fill.png", alt: "Fill", height: "90", id: "upload_thumbnail" )
-            a << @template.hidden_field_tag("upload_s3_path", nil, id: 'upload_s3_path')
+            @template.image_tag("fill.png", alt: "Fill", height: "90", id: "upload_thumbnail" )
           end
 
           b << @template.content_tag('div', class: 'col-md-9 last') do
@@ -48,6 +47,7 @@ module ActionView::Helpers
                   a = @template.content_tag('i', nil, class: 'glyphicon glyphicon-plus')
                   a << @template.content_tag('span') do
                     e = @template.content_tag('span', "Add file")
+                    e << @template.hidden_field_tag("upload_s3_path", nil, id: 'upload_s3_path')
                     e << @template.file_field_tag('file', class: "file-field", id: "file", data: {avalible_mime: avalibled_mime.join(' ')})
                     e
                   end

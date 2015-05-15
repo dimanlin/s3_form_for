@@ -22,6 +22,7 @@ $.fn.S3Uploader = (options) ->
     remove_completed_progress_bar: true
     remove_failed_progress_bar: false
     progress_bar_target: $uploadForm.find('.progress')
+    autoUpload: false
     click_submit_target: null
     allow_multiple_files: true
     used_fields: ['utf8', 'key', 'acl', 'AWSAccessKeyId', 'policy', 'signature', 'success_action_status', 'X-Requested-With', 'content-type', 'file', 'x-amz-server-side-encryption']
@@ -99,15 +100,6 @@ $.fn.S3Uploader = (options) ->
 
   setUploadForm = ->
     $uploadForm.fileupload
-#      before_add: (file) ->
-#        console.log('checl mime')
-#        media_types = new RegExp($($uploadForm).find("input[name='file']").data('avalible-mime'), 'i')
-#        if media_types.test(file.type) or media_types.test(file.name)
-#          return true
-#        else
-#          alert "File is not a valid photo."
-#          return false
-
       url: $uploadForm.data('s3-url')
       add: (e, data) ->
         file = data.files[0]
@@ -188,7 +180,8 @@ $.fn.S3Uploader = (options) ->
         content.error_thrown = data.errorThrown
 
         data.context.remove() if data.context && settings.remove_failed_progress_bar # remove progress bar
-        $uploadForm.trigger("s3_upload_failed", [content])
+#        $uploadForm.trigger("s3_upload_failed", [content])
+        return false
 
       formData: (form) ->
 
@@ -226,11 +219,6 @@ $.fn.S3Uploader = (options) ->
           $uploadForm.find("input[name='key']").val(settings.path + key)
         data
 
-    $uploadForm.on 'show_cancel_button', ->
-      $(selectors.submit).hide()
-      $(selectors.cancel_upload).removeClass('hide')
-
-
     $uploadForm.on 'enable_all_field', ->
       $(selectors.s3_form).find(selectors.disable_fields).removeAttr('disabled')
 
@@ -240,7 +228,6 @@ $.fn.S3Uploader = (options) ->
       $('.progress-bar').removeAttr('style')
 
     $uploadForm.on 'show_submit_button', ->
-      console.log('show_submit_button')
       $(selectors.submit).show()
       $(selectors.cancel_upload).addClass('hide')
 
@@ -269,7 +256,7 @@ $.fn.S3Uploader = (options) ->
       content.url            = $(result).find("Location").text()
       content.filepath       = $('<a />').attr('href', content.url)[0].pathname
     else # IE <= 9 retu      rn a null result object so we use the file object instead
-      domain                 = $uploadForm.attr('action')
+      domain                 = $uploadForm.data('s3-url')
       content.filepath       = $uploadForm.find('input[name=key]').val().replace('/${filename}', '')
       content.url            = domain + content.filepath + '/' + encodeURIComponent(file.name)
 
