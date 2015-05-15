@@ -27,7 +27,7 @@ module ActionView::Helpers
       all_formats += options[:report_formats] if options[:report_formats].present?
 
 
-      avalibled_mime = all_formats.map do |extention|
+      available_mime = all_formats.map do |extention|
                         mime_types[extention] if mime_types.has_key?(extention)
                       end
 
@@ -48,7 +48,7 @@ module ActionView::Helpers
                   a << @template.content_tag('span') do
                     e = @template.content_tag('span', "Add file")
                     e << @template.hidden_field_tag("upload_s3_path", nil, id: 'upload_s3_path')
-                    e << @template.file_field_tag('file', class: "file-field", id: "file", data: {avalible_mime: avalibled_mime.join(' ')})
+                    e << @template.file_field_tag('file', class: "file-field", id: "file", data: {available_mime: available_mime.join(' ')})
                     e
                   end
                   a
