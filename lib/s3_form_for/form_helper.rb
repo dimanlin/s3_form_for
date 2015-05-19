@@ -1,6 +1,5 @@
 module S3DirectUpload
   module UploadHelper
-
     def s3_form_for(object, options = {}, &block)
       options.deep_symbolize_keys!
       uploader = S3Uploader.new(options)

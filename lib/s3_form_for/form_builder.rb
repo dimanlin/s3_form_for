@@ -66,7 +66,22 @@ module ActionView::Helpers
                 z << @template.content_tag('p', "Photo: #{options[:photo_formats].join(', ').upcase}") if options[:photo_formats]
                 z << @template.content_tag('p', "Video: #{options[:video_formats].join(', ').upcase}") if options[:video_formats]
                 z << @template.content_tag('p', "Report: #{options[:report_formats].join(', ').upcase}") if options[:report_formats]
-                z << @template.content_tag('p', "DICOM: #{options[:dicom_formats].join(', ').upcase}") if options[:dicom_formats]
+                if options[:dicom_formats]
+                  z << @template.content_tag('p') do
+                    g = @template.content_tag('span') do
+                      "DICOM: #{options[:dicom_formats].join(', ').upcase}"
+                    end
+                    if options[:dicom_link].present?
+                      link_options = { class: "btn btn-default btn-xs", href: "#" }.merge(options[:dicom_link][:link_options])
+                      link_name = options[:dicom_link][:link_options][:link_name]
+                      link_options.delete(:link_name)
+                      g << @template.content_tag('a', link_options) do
+                        link_name
+                      end
+                    end
+                    g
+                  end
+                end
                 z
               end
 
