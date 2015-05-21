@@ -1,6 +1,7 @@
 module ActionView::Helpers
   class FormBuilder
     def s3_file(method, options = {}, html_options = {})
+      options = options.with_indifferent_access
       mime_types = {
         # images
         gif: 'image/gif',
@@ -56,30 +57,28 @@ module ActionView::Helpers
                   end
                   a
                 end
-
                 d << @template.content_tag('span', nil, id: 'file_name_for_upload')
                 d
               end
 
               c << @template.content_tag('span', class: 'upload-footer') do
                 z = @template.content_tag('p', "Accepted formats are:")
-                z << @template.content_tag('p', "Photo: #{options[:photo_formats].join(', ').upcase}") if options[:photo_formats]
-                z << @template.content_tag('p', "Video: #{options[:video_formats].join(', ').upcase}") if options[:video_formats]
-                z << @template.content_tag('p', "Report: #{options[:report_formats].join(', ').upcase}") if options[:report_formats]
-                if options[:dicom_formats]
-                  z << @template.content_tag('p') do
-                    g = @template.content_tag('span') do
-                      "DICOM: #{options[:dicom_formats].join(', ').upcase}"
-                    end
-                    if options[:dicom_link].present?
-                      link_options = { class: "btn btn-default btn-xs", href: "#" }.merge(options[:dicom_link][:link_options])
-                      link_name = options[:dicom_link][:link_options][:link_name]
-                      link_options.delete(:link_name)
-                      g << @template.content_tag('a', link_options) do
-                        link_name
+                [:photo, :video, :report, :dicom].map do |a|
+                  if options["#{a}_formats"]
+                    z << @template.content_tag('p') do
+                      g = @template.content_tag('span') do
+                        "#{a.upcase}: #{options["#{a}_formats"].join(', ').upcase}"
                       end
+                      if options["#{a}_link"].present?
+                        link_options = { class: "btn btn-default btn-xs", href: "#" }.merge(options["#{a}_link"][:link_options])
+                        link_name = options["#{a}_link"][:link_options][:link_name]
+                        link_options.delete(:link_name)
+                        g << @template.content_tag('a', link_options) do
+                          link_name
+                        end
+                      end
+                      g
                     end
-                    g
                   end
                 end
                 z
