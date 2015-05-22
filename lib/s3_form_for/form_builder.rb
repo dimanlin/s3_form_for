@@ -72,7 +72,7 @@ module ActionView::Helpers
                       if options["#{a}_link"].present?
                         link_options = { class: "btn btn-default btn-xs", href: "#" }.merge(options["#{a}_link"][:link_options])
                         link_name = options["#{a}_link"][:link_options][:link_name]
-                        link_options.delete(:link_name)
+                        link_options.delete('link_name')
                         g << @template.content_tag('a', link_options) do
                           link_name
                         end
