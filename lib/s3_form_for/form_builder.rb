@@ -1,7 +1,10 @@
 module ActionView::Helpers
   class FormBuilder
     def s3_file(method, options = {}, html_options = {})
+
       options = options.with_indifferent_access
+      browser_name = Browser.new(:ua => options[:http_user_agent], :accept_language => "en-us").name
+      puts browser_name.red
       mime_types = {
         # images
         gif: 'image/gif',
@@ -17,6 +20,7 @@ module ActionView::Helpers
         mp4: 'video/mp4',
         m4v: 'video/x-m4v',
         avi: 'video/x-msvideo',
+        wmv: 'video/x-ms-wmv',
 
         # report
         pdf: 'application/pdf',
@@ -25,15 +29,25 @@ module ActionView::Helpers
       }.with_indifferent_access
 
       all_formats = []
-      all_formats = options[:photo_formats] if options[:photo_formats].present?
+      all_formats += options[:photo_formats] if options[:photo_formats].present?
       all_formats += options[:video_formats] if options[:video_formats].present?
       all_formats += options[:report_formats] if options[:report_formats].present?
       all_formats += options[:dicom_formats] if options[:dicom_formats].present?
 
-
       available_mime = all_formats.map do |extention|
                         mime_types[extention] if mime_types.has_key?(extention)
-                      end
+                       end
+
+      accept_mime = case browser_name
+                      when 'Firefox'
+                        all_formats = []
+                        all_formats << 'image/*'  if options[:photo_formats].present?
+                        all_formats << 'video/*' if options[:video_formats].present?
+                        all_formats << 'application/*' if options[:report_formats].present? || options[:dicom_formats].present?
+                        all_formats
+                      else
+                        available_mime
+                    end.join(', ')
 
       @template.content_tag('div', class: 'row') do
         @template.content_tag('div', class: 'col-md-12') do
@@ -52,7 +66,7 @@ module ActionView::Helpers
                   a << @template.content_tag('span') do
                     e = @template.content_tag('span', "Add file")
                     e << @template.hidden_field_tag("upload_s3_path", nil, id: 'upload_s3_path')
-                    e << @template.file_field_tag('file', class: "file-field", id: "file", data: {available_mime: available_mime.join(' ')})
+                    e << @template.file_field_tag('file', class: "file-field", id: "file", accept: accept_mime, data: {available_mime: available_mime.join(' ')})
                     e
                   end
                   a
