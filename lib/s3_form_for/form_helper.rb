@@ -40,7 +40,7 @@ module S3DirectUpload
       end
 
       def form_options
-        {
+        option = {
           multipart: true,
           data: {
             s3_url: url,
@@ -49,6 +49,8 @@ module S3DirectUpload
             callback_param: @options[:callback_param]
           }.reverse_merge(@options[:data] || {})
         }.merge({html: @options[:html] || {}})
+        option.merge!(url: @options[:url]) if @options[:url].present?
+        option
       end
 
       def fields
@@ -69,7 +71,7 @@ module S3DirectUpload
       end
 
       def url
-        @options[:url] || "http#{@options[:ssl] ? 's' : ''}://#{@options[:region]}.amazonaws.com/#{@options[:bucket]}/"
+        @options[:s3_url] || "http#{@options[:ssl] ? 's' : ''}://#{@options[:region]}.amazonaws.com/#{@options[:bucket]}/"
       end
 
       def policy

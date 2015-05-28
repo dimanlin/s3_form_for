@@ -30,11 +30,11 @@ $.fn.S3Uploader = (options) ->
     allow_send_form_without_file: false
 
   selectors =
-    s3_form: '#s3-uploader'
-    submit: '#form_submit'
+    s3_form: '.s3_form_for_form'
+    submit: '.s3_form_for_submit'
     cancel_upload: '#cancel_upload'
-    s3_path_text_field: $('#s3-uploader').data('s3_path_text_field')
-    main_form: $($('#s3-uploader').data('s3-path-text-field')).closest('form')
+    s3_path_text_field: $('.s3_form_for_form').data('s3_path_text_field')
+    main_form: $($('.s3_form_for_form').data('s3-path-text-field')).closest('form')
     disable_fields: 'textarea,input[type=text],input[type=checkbox],select'
     file_name_for_upload: '#file_name_for_upload'
 
@@ -140,7 +140,6 @@ $.fn.S3Uploader = (options) ->
           data.context.find('.bar').css('width', progress + '%')
 
       done: (e, data) ->
-        console.log('done')
         content = build_content_object $uploadForm, data.files[0], data.result
 
         callback_url = $uploadForm.data('callback-url')
@@ -168,10 +167,8 @@ $.fn.S3Uploader = (options) ->
               event = $.Event('ajax:error')
               $uploadForm.trigger(event, [xhr, status, error])
               return event.result
-
         data.context.remove() if data.context && settings.remove_completed_progress_bar # remove progress bar
         $uploadForm.trigger("s3_upload_complete", [content])
-
         current_files.splice($.inArray(data, current_files), 1) # remove that element from the array
         $uploadForm.trigger("s3_uploads_complete", [content]) unless current_files.length
 
@@ -244,7 +241,7 @@ $.fn.S3Uploader = (options) ->
       $("#upload_s3_path").val(content.filepath)
 #      $("#{selectors.s3_form} #form_submit").submit()
 #      Hack for IE9
-      $("#{selectors.s3_form} #form_submit").submit (e) ->
+      $("#{selectors.s3_form} #{selectors.submit}").submit (e) ->
         e.preventDefault();
         $(this).closest("form").submit()
 

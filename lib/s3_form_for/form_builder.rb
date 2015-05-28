@@ -4,7 +4,6 @@ module ActionView::Helpers
 
       options = options.with_indifferent_access
       browser_name = Browser.new(:ua => options[:http_user_agent], :accept_language => "en-us").name
-      puts browser_name.red
       mime_types = {
         # images
         gif: 'image/gif',
