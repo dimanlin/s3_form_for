@@ -4,38 +4,14 @@ module ActionView::Helpers
 
       options = options.with_indifferent_access
       browser_name = Browser.new(:ua => options[:http_user_agent], :accept_language => "en-us").name
-      mime_types = {
-        # images
-        gif: 'image/gif',
-        jpg: 'image/jpeg',
-        jpeg: 'image/pjpeg',
-        png: 'image/png',
-        svg: 'image/svg+xml',
 
-        #video
-        mov: 'video/quicktime',
-        mpeg: 'video/mpeg',
-        mpg: 'video/mpeg',
-        mp4: 'video/mp4',
-        m4v: 'video/x-m4v',
-        avi: 'video/x-msvideo',
-        wmv: 'video/x-ms-wmv',
+      all_formats = {}
+      all_formats.merge!(options[:photo_formats]) if options[:photo_formats].present?
+      all_formats.merge!(options[:video_formats]) if options[:video_formats].present?
+      all_formats.merge!(options[:report_formats]) if options[:report_formats].present?
+      all_formats.merge!(options[:dicom_formats]) if options[:dicom_formats].present?
 
-        # report
-        pdf: 'application/pdf',
-        # DICOM - ZIP
-        zip: 'application/zip'
-      }.with_indifferent_access
-
-      all_formats = []
-      all_formats += options[:photo_formats] if options[:photo_formats].present?
-      all_formats += options[:video_formats] if options[:video_formats].present?
-      all_formats += options[:report_formats] if options[:report_formats].present?
-      all_formats += options[:dicom_formats] if options[:dicom_formats].present?
-
-      available_mime = all_formats.map do |extention|
-                        mime_types[extention] if mime_types.has_key?(extention)
-                       end
+      available_mime = all_formats.values
 
       accept_mime = case browser_name
                       when 'Firefox'
@@ -47,6 +23,7 @@ module ActionView::Helpers
                       else
                         available_mime
                     end.join(', ')
+
 
       @template.content_tag('div', class: 'row') do
         @template.content_tag('div', class: 'col-md-12') do
@@ -80,7 +57,7 @@ module ActionView::Helpers
                   if options["#{a}_formats"]
                     z << @template.content_tag('p') do
                       g = @template.content_tag('span') do
-                        "#{a.upcase}: #{options["#{a}_formats"].join(', ').upcase}"
+                        "#{a.upcase}: #{options["#{a}_formats"].keys.join(', ').upcase}"
                       end
                       if options["#{a}_link"].present?
 
