@@ -55,8 +55,8 @@ module ActionView::Helpers
 
       @template.content_tag('div', class: 'row') do
         @template.content_tag('div', class: 'col-md-12') do
-          b = @template.content_tag('div', class: 'col-md-3') do
-            @template.image_tag("fill.png", alt: "Fill", height: "90", id: "upload_thumbnail" )
+          b = @template.content_tag('div', class: 'col-md-3', id: "upload_thumbnail") do
+            @template.image_tag("fill.png", alt: "Fill", height: "90" )
           end
 
           b << @template.content_tag('div', class: 'col-md-9 last') do

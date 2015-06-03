@@ -58,9 +58,8 @@ $.fn.S3Uploader = (options) ->
         loadImage file, ((img) ->
             imgElem = $(img)
             imgElem.addClass 'img-responsive'
-            container = $("#upload_thumbnail").parent()
-            container.children().remove()
-            container.css 'text-align': 'center'
+            container = $("#upload_thumbnail")
+            container.html('')
             container.append imgElem
           ),
           maxHeight: 90
@@ -88,7 +87,8 @@ $.fn.S3Uploader = (options) ->
           canvas: false
     else
       # Fallback; just use a placeholder
-      $('#upload_thumbnail').show().attr('src', assetPath('media/mrx-placeholder-120x90.png'))
+      image = $('img', src: assetPath('media/mrx-placeholder-120x90.png'))
+      $('#upload_thumbnail').append(image)
 
   if settings.click_submit_target
     settings.click_submit_target.click =>
