@@ -1,5 +1,33 @@
 module ActionView::Helpers
   class FormBuilder
+    def s3_preogress_bar
+      c = @template.content_tag('div')
+      c << @template.content_tag('div', class: 'upload_uploading hidden') do
+        @template.content_tag('div', class: 'upload-header') do
+          'Your file is uploading. Do not close your browser.'
+        end
+
+        @template.content_tag('div', class: 'upload-main') do
+          @template.content_tag('div', class: 'progress progress-striped active') do
+            @template.content_tag('div', nil, class: 'progress-bar bar')
+          end
+        end
+      end
+
+      c << @template.content_tag('div', class: 'upload_succeeded hidden') do
+        @template.content_tag('div', class: 'upload-main') do
+          @template.content_tag('h4', 'Upload complete')
+        end
+      end
+
+      c << @template.content_tag('div', class: 'upload_failed hidden') do
+        @template.content_tag('div', class: 'upload-main') do
+          @template.content_tag('h4', "We couldn't upload your media file. Please ensure it is a valid image or video file.")
+        end
+      end
+      c
+    end
+
     def s3_file(method, options = {}, html_options = {})
 
       options = options.with_indifferent_access
@@ -27,7 +55,7 @@ module ActionView::Helpers
 
       @template.content_tag('div', class: 'row') do
         @template.content_tag('div', class: 'col-md-12') do
-          b = @template.content_tag('div', class: 'col-md-2') do
+          b = @template.content_tag('div', class: 'col-md-3') do
             @template.image_tag("fill.png", alt: "Fill", height: "90", id: "upload_thumbnail" )
           end
 
@@ -74,28 +102,29 @@ module ActionView::Helpers
                 end
                 z
               end
+              unless options[:without_progress_bar]
+                c << @template.content_tag('div', class: 'upload_uploading hidden') do
+                  @template.content_tag('div', class: 'upload-header') do
+                    'Your file is uploading. Do not close your browser.'
+                  end
 
-              c << @template.content_tag('div', class: 'upload_uploading hidden') do
-                @template.content_tag('div', class: 'upload-header') do
-                  'Your file is uploading. Do not close your browser.'
-                end
-
-                @template.content_tag('div', class: 'upload-main') do
-                  @template.content_tag('div', class: 'progress progress-striped active') do
-                    @template.content_tag('div', nil, class: 'progress-bar bar')
+                  @template.content_tag('div', class: 'upload-main') do
+                    @template.content_tag('div', class: 'progress progress-striped active') do
+                      @template.content_tag('div', nil, class: 'progress-bar bar')
+                    end
                   end
                 end
-              end
 
-              c << @template.content_tag('div', class: 'upload_succeeded hidden') do
-                @template.content_tag('div', class: 'upload-main') do
-                  @template.content_tag('h4', 'Upload complete')
+                c << @template.content_tag('div', class: 'upload_succeeded hidden') do
+                  @template.content_tag('div', class: 'upload-main') do
+                    @template.content_tag('h4', 'Upload complete')
+                  end
                 end
-              end
 
-              c << @template.content_tag('div', class: 'upload_failed hidden') do
-                @template.content_tag('div', class: 'upload-main') do
-                  @template.content_tag('h4', "We couldn't upload your media file. Please ensure it is a valid image or video file.")
+                c << @template.content_tag('div', class: 'upload_failed hidden') do
+                  @template.content_tag('div', class: 'upload-main') do
+                    @template.content_tag('h4', "We couldn't upload your media file. Please ensure it is a valid image or video file.")
+                  end
                 end
               end
               c

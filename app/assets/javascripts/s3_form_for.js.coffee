@@ -66,6 +66,26 @@ $.fn.S3Uploader = (options) ->
           maxHeight: 90
           orientation: ornt
           canvas: true
+
+      loadImage.parseMetaData file, (img) ->
+        ornt = if img.exif? then img.exif.get("Orientation") else 1
+
+        image_contaner = $(".s3_image")
+        attr_image_max_height = image_contaner.data('image-max-height')
+        max_height =  if attr_image_max_height == undefined
+                        48
+                      else
+                        attr_image_max_height
+
+        # Set thumbnail
+        loadImage file, ((img) ->
+            imgElem = $(img)
+            image_contaner.html('')
+            image_contaner.append imgElem
+          ),
+          maxHeight: max_height
+          orientation: ornt
+          canvas: false
     else
       # Fallback; just use a placeholder
       $('#upload_thumbnail').show().attr('src', assetPath('media/mrx-placeholder-120x90.png'))
