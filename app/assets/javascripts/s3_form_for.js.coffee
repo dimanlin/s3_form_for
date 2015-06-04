@@ -79,7 +79,7 @@ $.fn.S3Uploader = (options) ->
         # Set thumbnail
         loadImage file, ((img) ->
             imgElem = $(img)
-            image_contaner.html('')
+            image_contaner.empty()
             image_contaner.append imgElem
           ),
           maxHeight: max_height
@@ -87,7 +87,9 @@ $.fn.S3Uploader = (options) ->
           canvas: false
     else
       # Fallback; just use a placeholder
-      image = $('img', src: assetPath('media/mrx-placeholder-120x90.png'))
+      image = $('<img>')
+      image.attr('src', assetPath('media/mrx-placeholder-120x90.png'))
+      $('#upload_thumbnail').empty()
       $('#upload_thumbnail').append(image)
 
   if settings.click_submit_target
