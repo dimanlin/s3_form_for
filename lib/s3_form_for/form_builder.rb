@@ -55,11 +55,11 @@ module ActionView::Helpers
 
       @template.content_tag('div', class: 'row') do
         @template.content_tag('div', class: 'col-md-12') do
-          b = @template.content_tag('div', class: 'col-md-3', id: "upload_thumbnail") do
+          b = @template.content_tag('div', class: 'col-xs-3', id: "upload_thumbnail") do
             @template.image_tag("fill.png", alt: "Fill", height: "90" )
           end
 
-          b << @template.content_tag('div', class: 'col-md-9 last') do
+          b << @template.content_tag('div', class: 'col-xs-9') do
             @template.content_tag('div', class: 'upload-picking') do
               c = @template.content_tag('div', class: 'upload-header') do
                 'Please select file to upload:'
