@@ -88,7 +88,6 @@ $.fn.S3Uploader = (options) ->
     else
       # Fallback; just use a placeholder
       image = $('<img/>', {src: assetPath('media/mrx-placeholder-120x90.png')})
-      window.image = image
       $('#upload_thumbnail, .s3_image').html(image)
 
   if settings.click_submit_target
