@@ -42,15 +42,17 @@ module ActionView::Helpers
       available_mime = all_formats.values
 
       accept_mime = case browser_name
+                      when 'Chrome'
+                        ''
                       when 'Firefox'
                         all_formats = []
                         all_formats << 'image/*'  if options[:photo_formats].present?
                         all_formats << 'video/*' if options[:video_formats].present?
                         all_formats << 'application/*' if options[:report_formats].present? || options[:dicom_formats].present?
-                        all_formats
+                        all_formats.join(', ')
                       else
-                        available_mime
-                    end.join(', ')
+                        available_mime.join(', ')
+                    end
 
 
       @template.content_tag('div', class: 'row') do
