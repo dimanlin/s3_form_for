@@ -57,7 +57,7 @@ $.fn.S3Uploader = (options) ->
         # Set thumbnail
         loadImage file, ((img) ->
             imgElem = $(img)
-            imgElem.addClass 'img-responsive'
+            imgElem.addClass 'empty-avatar'
             container = $("#upload_thumbnail")
             container.html('')
             container.append imgElem

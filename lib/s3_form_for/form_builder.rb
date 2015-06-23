@@ -55,43 +55,56 @@ module ActionView::Helpers
                     end
 
 
-      @template.content_tag('div', class: 'row') do
+      k = @template.content_tag('div', class: 'row') do
         @template.content_tag('div', class: 'col-md-12') do
-          b = @template.content_tag('div', class: 'col-xs-3', id: "upload_thumbnail") do
-            @template.image_tag("fill.png", alt: "Fill", height: "90" )
+          b = @template.content_tag('div', id: "upload_thumbnail") do
+            @template.content_tag('span', href: 'javascript:void(0);', class: 'empty-avatar') do
+              ""
+            end
           end
 
-          b << @template.content_tag('div', class: 'col-xs-9') do
-            @template.content_tag('div', class: 'upload-picking') do
-              c = @template.content_tag('div', class: 'upload-header') do
-                'Please select file to upload:'
-              end
-              c << @template.content_tag('div', class: 'upload_main') do
-                d = @template.content_tag('span', class: 'btn btn-success fileinput-button') do
-                  a = @template.content_tag('i', nil, class: 'glyphicon glyphicon-plus')
-                  a << @template.content_tag('span') do
-                    e = @template.content_tag('span', "Add file")
-                    e << @template.hidden_field_tag("upload_s3_path", nil, id: 'upload_s3_path')
-                    e << @template.file_field_tag('file', class: "file-field", id: "file", accept: accept_mime, data: {available_mime: available_mime.join(' ')})
-                    e
+          b << @template.content_tag('div', class: 'upload-info') do
+            @template.content_tag('div', class: 'upload-before') do
+              c = @template.content_tag('div', class: 'upload-info-select') do
+                z = @template.content_tag('p', class: 'h3') do
+                  'Please select file to upload:'
+                end
+
+                z << @template.content_tag('p') do
+                  a = @template.content_tag('a', href: 'javascript:void(0);', class: 'btn btn-file btn-default') do
+                    span = @template.content_tag('span', class: 'overflow') do
+                      e = @template.hidden_field_tag("upload_s3_path", nil, id: 'upload_s3_path')
+                      e << @template.file_field_tag('file', class: "file-field", id: "file", accept: accept_mime, data: {available_mime: available_mime.join(' ')})
+                      e
+                    end
+
+                    span << @template.content_tag('span', class: 'btn-file-text') do
+                      'Choose'
+                    end
+                    span
+                  end
+
+                  a << @template.content_tag('span', class: 'file-name', id: 'file_name_for_upload') do
+                    'No file selected'
                   end
                   a
                 end
-                d << @template.content_tag('span', nil, id: 'file_name_for_upload')
-                d
+                z
               end
 
-              c << @template.content_tag('span', class: 'upload-footer') do
-                z = @template.content_tag('p', "Accepted formats are:")
+              c << @template.content_tag('div', class: 'upload-info-formats') do
+                u = @template.content_tag('p', class: 'h3') do
+                  'formats are:'
+                end
                 [:photo, :video, :report, :dicom].map do |a|
                   if options["#{a}_formats"]
-                    z << @template.content_tag('p') do
+                    u << @template.content_tag('p', class: 'h4') do
                       g = @template.content_tag('span') do
-                        "#{a.upcase}: #{options["#{a}_formats"].keys.join(', ').upcase}"
+                        "#{a.upcase} - #{options["#{a}_formats"].keys.join(', ').upcase}"
                       end
                       if options["#{a}_link"].present?
 
-                        link_options = { class: "btn btn-default btn-xs" }.merge(options["#{a}_link"][:link_options])
+                        link_options = { class: "btn btn-default btn-xs link_for_s3_file_upload" }.merge(options["#{a}_link"][:link_options])
                         link_name = options["#{a}_link"][:link_options][:link_name]
                         link_options.delete('link_name')
                         g << @template.content_tag('a', link_options) do
@@ -102,32 +115,7 @@ module ActionView::Helpers
                     end
                   end
                 end
-                z
-              end
-              unless options[:without_progress_bar]
-                c << @template.content_tag('div', class: 'upload_uploading hidden') do
-                  @template.content_tag('div', class: 'upload-header') do
-                    'Your file is uploading. Do not close your browser.'
-                  end
-
-                  @template.content_tag('div', class: 'upload-main') do
-                    @template.content_tag('div', class: 'progress progress-striped active') do
-                      @template.content_tag('div', nil, class: 'progress-bar bar')
-                    end
-                  end
-                end
-
-                c << @template.content_tag('div', class: 'upload_succeeded hidden') do
-                  @template.content_tag('div', class: 'upload-main') do
-                    @template.content_tag('h4', 'Upload complete')
-                  end
-                end
-
-                c << @template.content_tag('div', class: 'upload_failed hidden') do
-                  @template.content_tag('div', class: 'upload-main') do
-                    @template.content_tag('h4', "We couldn't upload your media file. Please ensure it is a valid image or video file.")
-                  end
-                end
+                u
               end
               c
             end
@@ -135,6 +123,33 @@ module ActionView::Helpers
           b
         end
       end
+
+      unless options[:without_progress_bar]
+        k << @template.content_tag('div', class: 'upload_uploading hidden') do
+          @template.content_tag('div', class: 'upload-header') do
+            'Your file is uploading. Do not close your browser.'
+          end
+
+          @template.content_tag('div', class: 'upload-main') do
+            @template.content_tag('div', class: 'progress progress-striped active') do
+              @template.content_tag('div', nil, class: 'progress-bar bar')
+            end
+          end
+        end
+
+        k << @template.content_tag('div', class: 'upload_succeeded hidden') do
+          @template.content_tag('div', class: 'upload-main') do
+            @template.content_tag('h4', 'Upload complete')
+          end
+        end
+
+        k << @template.content_tag('div', class: 'upload_failed hidden') do
+          @template.content_tag('div', class: 'upload-main') do
+            @template.content_tag('h4', "We couldn't upload your media file. Please ensure it is a valid image or video file.")
+          end
+        end
+      end
+      k
     end
   end
 end
