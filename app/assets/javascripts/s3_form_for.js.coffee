@@ -68,8 +68,7 @@ $.fn.S3Uploader = (options) ->
 
       loadImage.parseMetaData file, (img) ->
         ornt = if img.exif? then img.exif.get("Orientation") else 1
-
-        image_contaner = $(".s3_image")
+        image_contaner = $($uploadForm).find(".s3_image")
         attr_image_max_height = image_contaner.data('image-max-height')
         max_height =  if attr_image_max_height == undefined
                         48
@@ -106,14 +105,15 @@ $.fn.S3Uploader = (options) ->
             $(item).next().remove()
           $(item).attr('disabled','disabled')
 
-      if settings.allow_send_form_without_file && $uploadForm.find('#file_name_for_upload').text().length == 0
+      file_name_for_upload_text = $uploadForm.find('#file_name_for_upload').text()
+      if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
         $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
           $(item).removeAttr('disabled')
 
       if  validation_form
         $(forms_for_submit).submit()
 
-      if settings.allow_send_form_without_file && $uploadForm.find('#file_name_for_upload').text() == 'No file selected'
+      if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
         true
       else
         false
