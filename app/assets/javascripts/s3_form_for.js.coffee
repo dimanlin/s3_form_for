@@ -113,7 +113,7 @@ $.fn.S3Uploader = (options) ->
       if  validation_form
         $(forms_for_submit).submit()
 
-      if settings.allow_send_form_without_file && $uploadForm.find('#file_name_for_upload').text().length == 0
+      if settings.allow_send_form_without_file && $uploadForm.find('#file_name_for_upload').text() == 'No file selected'
         true
       else
         false
