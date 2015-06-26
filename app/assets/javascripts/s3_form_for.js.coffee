@@ -58,7 +58,7 @@ $.fn.S3Uploader = (options) ->
         loadImage file, ((img) ->
             imgElem = $(img)
             imgElem.addClass 'empty-avatar'
-            container = $("#upload_thumbnail")
+            container = $uploadForm.find("#upload_thumbnail")
             container.html('')
             container.append imgElem
           ),
