@@ -110,14 +110,14 @@ $.fn.S3Uploader = (options) ->
         $(item).removeAttr('disabled')
 
     if  validation_form
-      $($uploadForm).submit()
+      $(forms_for_submit).submit()
+#      $($uploadForm).submit()
 
     if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
       true
     else
       false
 
-#    false
 
   setUploadForm = ->
     $uploadForm.fileupload
@@ -259,7 +259,7 @@ $.fn.S3Uploader = (options) ->
       $uploadForm.find(".upload_finished").show().removeClass "hidden"
       $(selectors.submit).removeClass("disabled").prop "disabled", false
       $("#upload_skip_link").removeClass "hidden"
-      $("#upload_s3_path").val(content.filepath)
+      $uploadForm.find("#upload_s3_path").val(content.filepath)
 #      $("#{selectors.s3_form} #form_submit").submit()
 #      Hack for IE9
       $("#{selectors.s3_form} #{selectors.submit}").submit (e) ->
