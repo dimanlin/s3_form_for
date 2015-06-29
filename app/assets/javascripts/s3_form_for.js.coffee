@@ -90,8 +90,6 @@ $.fn.S3Uploader = (options) ->
       $('#upload_thumbnail, .s3_image').html(image)
 
   $uploadForm.find('input[type=submit]').click =>
-    console.log('111111111111111111111111111111')
-    console.log(event.currentTarget)
     validation_form = true
     $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
       if $(item).attr('required') == 'required' && $(item).val().length == 0
@@ -106,20 +104,20 @@ $.fn.S3Uploader = (options) ->
           $(item).next().remove()
         $(item).attr('disabled','disabled')
 
-#    file_name_for_upload_text = $uploadForm.find('#file_name_for_upload').text()
-#    if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
-#      $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
-#        $(item).removeAttr('disabled')
+    file_name_for_upload_text = $uploadForm.find('#file_name_for_upload').text()
+    if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
+      $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
+        $(item).removeAttr('disabled')
 
-#    if  validation_form
-#      $(forms_for_submit).submit()
+    if  validation_form
+      $($uploadForm).submit()
 
-#    if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
-#      true
-#    else
-#      false
+    if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
+      true
+    else
+      false
 
-    false
+#    false
 
   setUploadForm = ->
     $uploadForm.fileupload
