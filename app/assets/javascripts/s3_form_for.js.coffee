@@ -89,34 +89,15 @@ $.fn.S3Uploader = (options) ->
       image = $('<img/>', {src: assetPath('media/mrx-placeholder-120x90.png')})
       $('#upload_thumbnail, .s3_image').html(image)
 
-  $uploadForm.find('input[type=submit]').click =>
-    validation_form = true
-    $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
-      if $(item).attr('required') == 'required' && $(item).val().length == 0
-        error_message = $('<label />', class: 'text-danger')
-        error_message.text("can't be blank.")
-        unless $(item).next().hasClass('text-danger')
-          $(item).after(error_message)
-        validation_form = false
-        true
-      else
-        if $(item).next().hasClass('text-danger')
-          $(item).next().remove()
-        $(item).attr('disabled','disabled')
-
+  $uploadForm.find('.s3_form_for_submit').click =>
+    $uploadForm.trigger('start_send')
     file_name_for_upload_text = $uploadForm.find('#file_name_for_upload').text()
-    if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
-      $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
-        $(item).removeAttr('disabled')
-
-    if  validation_form
-      $(forms_for_submit).submit()
-#      $($uploadForm).submit()
-
     if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
       true
     else
       false
+
+
 
 
   setUploadForm = ->
@@ -236,6 +217,29 @@ $.fn.S3Uploader = (options) ->
         unless 'FormData' of window
           $uploadForm.find("input[name='key']").val(settings.path + key)
         data
+
+    $uploadForm.on 'start_send', ->
+      validation_form = true
+      $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
+        if $(item).attr('required') == 'required' && $(item).val().length == 0
+          error_message = $('<label />', class: 'text-danger')
+          error_message.text("can't be blank.")
+          unless $(item).next().hasClass('text-danger')
+            $(item).after(error_message)
+          validation_form = false
+          true
+        else
+          if $(item).next().hasClass('text-danger')
+            $(item).next().remove()
+          $(item).attr('disabled','disabled')
+
+      file_name_for_upload_text = $uploadForm.find('#file_name_for_upload').text()
+      if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
+        $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
+          $(item).removeAttr('disabled')
+
+      if  validation_form
+        $(forms_for_submit).submit()
 
     $uploadForm.on 'enable_all_field', ->
       $(selectors.s3_form).find(selectors.disable_fields).removeAttr('disabled')
