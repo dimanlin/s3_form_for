@@ -241,6 +241,11 @@ $.fn.S3Uploader = (options) ->
       if  validation_form
         $(forms_for_submit).submit()
 
+      if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
+        $($uploadForm).submit()
+      else
+        false
+
     $uploadForm.on 'enable_all_field', ->
       $(selectors.s3_form).find(selectors.disable_fields).removeAttr('disabled')
 
