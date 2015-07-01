@@ -242,13 +242,9 @@ $.fn.S3Uploader = (options) ->
         $(forms_for_submit).submit()
 
       if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
-        console.log('s3 submit')
         $($uploadForm).off 'submit'
-        console.log('1111111111111111111111111111')
-        console.log($($uploadForm))
         $($uploadForm).submit()
       else
-        console.log('s3 false')
         false
 
     $uploadForm.on 'enable_all_field', ->
@@ -274,12 +270,6 @@ $.fn.S3Uploader = (options) ->
       $(selectors.submit).removeClass("disabled").prop "disabled", false
       $("#upload_skip_link").removeClass "hidden"
       $uploadForm.find("#upload_s3_path").val(content.filepath)
-#      $("#{selectors.s3_form} #form_submit").submit()
-#      Hack for IE9
-#      $("#{selectors.s3_form} #{selectors.submit}").submit (e) ->
-#        e.preventDefault();
-#        $(this).closest("form").submit()
-      console.log('s3_upload_complete')
       $($uploadForm).off 'submit'
       $($uploadForm).submit()#rigger('submit')
 
