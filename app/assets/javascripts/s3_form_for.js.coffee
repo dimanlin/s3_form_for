@@ -22,6 +22,7 @@ $.fn.S3Uploader = (options) ->
     remove_completed_progress_bar: true
     remove_failed_progress_bar: false
     progress_bar_target: $uploadForm.find('.progress')
+    autoUpload: false
     click_submit_target: null
     allow_multiple_files: true
     used_fields: ['utf8', 'key', 'acl', 'AWSAccessKeyId', 'policy', 'signature', 'success_action_status', 'X-Requested-With', 'content-type', 'file', 'x-amz-server-side-encryption']
@@ -29,11 +30,11 @@ $.fn.S3Uploader = (options) ->
     allow_send_form_without_file: false
 
   selectors =
-    s3_form: '#s3-uploader'
-    submit: '#form_submit'
+    s3_form: '.s3_form_for_form'
+    submit: '.s3_form_for_submit'
     cancel_upload: '#cancel_upload'
-    s3_path_text_field: $('#s3-uploader').data('s3_path_text_field')
-    main_form: $($('#s3-uploader').data('s3-path-text-field')).closest('form')
+    s3_path_text_field: $('.s3_form_for_form').data('s3_path_text_field')
+    main_form: $($('.s3_form_for_form').data('s3-path-text-field')).closest('form')
     disable_fields: 'textarea,input[type=text],input[type=checkbox],select'
     file_name_for_upload: '#file_name_for_upload'
 
@@ -56,58 +57,51 @@ $.fn.S3Uploader = (options) ->
         # Set thumbnail
         loadImage file, ((img) ->
             imgElem = $(img)
-            imgElem.addClass 'img-responsive'
-            container = $("#upload_thumbnail").parent()
-            container.children().remove()
-            container.css 'text-align': 'center'
+            imgElem.addClass 'empty-avatar'
+            container = $uploadForm.find("#upload_thumbnail")
+            container.html('')
             container.append imgElem
           ),
           maxHeight: 90
           orientation: ornt
           canvas: true
+
+      loadImage.parseMetaData file, (img) ->
+        ornt = if img.exif? then img.exif.get("Orientation") else 1
+        image_contaner = $($uploadForm).find(".s3_image")
+        attr_image_max_height = image_contaner.data('image-max-height')
+        max_height =  if attr_image_max_height == undefined
+                        48
+                      else
+                        attr_image_max_height
+
+        # Set thumbnail
+        loadImage file, ((img) ->
+            imgElem = $(img)
+            image_contaner.empty()
+            image_contaner.append imgElem
+          ),
+          maxHeight: max_height
+          orientation: ornt
+          canvas: false
     else
       # Fallback; just use a placeholder
-      $('#upload_thumbnail').show().attr('src', assetPath('media/mrx-placeholder-120x90.png'))
+      image = $('<img/>', {src: assetPath('media/mrx-placeholder-120x90.png')})
+      $('#upload_thumbnail, .s3_image').html(image)
 
-  if settings.click_submit_target
-    settings.click_submit_target.click =>
-      validation_form = true
-      $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
-        if $(item).attr('required') == 'required' && $(item).val().length == 0
-          error_message = $('<label />', class: 'text-danger')
-          error_message.text("can't be blank.")
-          unless $(item).next().hasClass('text-danger')
-            $(item).after(error_message)
-          validation_form = false
-          true
-        else
-          if $(item).next().hasClass('text-danger')
-            $(item).next().remove()
-          $(item).attr('disabled','disabled')
+  $uploadForm.find('.s3_form_for_submit').click =>
+    $uploadForm.trigger('start_send')
+    file_name_for_upload_text = $uploadForm.find('#file_name_for_upload').text()
+    if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
+      true
+    else
+      false
 
-      if settings.allow_send_form_without_file && $uploadForm.find('#file_name_for_upload').text().length == 0
-        $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
-          $(item).removeAttr('disabled')
 
-      if  validation_form
-        $(forms_for_submit).submit()
 
-      if settings.allow_send_form_without_file && $uploadForm.find('#file_name_for_upload').text().length == 0
-        true
-      else
-        false
 
   setUploadForm = ->
     $uploadForm.fileupload
-#      before_add: (file) ->
-#        console.log('checl mime')
-#        media_types = new RegExp($($uploadForm).find("input[name='file']").data('avalible-mime'), 'i')
-#        if media_types.test(file.type) or media_types.test(file.name)
-#          return true
-#        else
-#          alert "File is not a valid photo."
-#          return false
-
       url: $uploadForm.data('s3-url')
       add: (e, data) ->
         file = data.files[0]
@@ -148,7 +142,6 @@ $.fn.S3Uploader = (options) ->
           data.context.find('.bar').css('width', progress + '%')
 
       done: (e, data) ->
-        console.log('done')
         content = build_content_object $uploadForm, data.files[0], data.result
 
         callback_url = $uploadForm.data('callback-url')
@@ -176,10 +169,8 @@ $.fn.S3Uploader = (options) ->
               event = $.Event('ajax:error')
               $uploadForm.trigger(event, [xhr, status, error])
               return event.result
-
         data.context.remove() if data.context && settings.remove_completed_progress_bar # remove progress bar
         $uploadForm.trigger("s3_upload_complete", [content])
-
         current_files.splice($.inArray(data, current_files), 1) # remove that element from the array
         $uploadForm.trigger("s3_uploads_complete", [content]) unless current_files.length
 
@@ -188,7 +179,8 @@ $.fn.S3Uploader = (options) ->
         content.error_thrown = data.errorThrown
 
         data.context.remove() if data.context && settings.remove_failed_progress_bar # remove progress bar
-        $uploadForm.trigger("s3_upload_failed", [content])
+#        $uploadForm.trigger("s3_upload_failed", [content])
+        return false
 
       formData: (form) ->
 
@@ -226,10 +218,34 @@ $.fn.S3Uploader = (options) ->
           $uploadForm.find("input[name='key']").val(settings.path + key)
         data
 
-    $uploadForm.on 'show_cancel_button', ->
-      $(selectors.submit).hide()
-      $(selectors.cancel_upload).removeClass('hide')
+    $uploadForm.on 'start_send', ->
+      validation_form = true
+      $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
+        if $(item).attr('required') == 'required' && $(item).val().length == 0
+          error_message = $('<label />', class: 'text-danger')
+          error_message.text("can't be blank.")
+          unless $(item).next().hasClass('text-danger')
+            $(item).after(error_message)
+          validation_form = false
+          true
+        else
+          if $(item).next().hasClass('text-danger')
+            $(item).next().remove()
+          $(item).attr('disabled','disabled')
 
+      file_name_for_upload_text = $uploadForm.find('#file_name_for_upload').text()
+      if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
+        $.each $uploadForm.find(settings.disable_fields_after_submit), (index, item) =>
+          $(item).removeAttr('disabled')
+
+      if  validation_form
+        $(forms_for_submit).submit()
+
+      if settings.allow_send_form_without_file && file_name_for_upload_text == 'No file selected'
+        $($uploadForm).off 'submit'
+        $($uploadForm).submit()
+      else
+        false
 
     $uploadForm.on 'enable_all_field', ->
       $(selectors.s3_form).find(selectors.disable_fields).removeAttr('disabled')
@@ -240,7 +256,6 @@ $.fn.S3Uploader = (options) ->
       $('.progress-bar').removeAttr('style')
 
     $uploadForm.on 'show_submit_button', ->
-      console.log('show_submit_button')
       $(selectors.submit).show()
       $(selectors.cancel_upload).addClass('hide')
 
@@ -254,14 +269,9 @@ $.fn.S3Uploader = (options) ->
       $uploadForm.find(".upload_finished").show().removeClass "hidden"
       $(selectors.submit).removeClass("disabled").prop "disabled", false
       $("#upload_skip_link").removeClass "hidden"
-      $("#upload_s3_path").val(content.filepath)
-#      $("#{selectors.s3_form} #form_submit").submit()
-#      Hack for IE9
-      $("#{selectors.s3_form} #form_submit").submit (e) ->
-        e.preventDefault();
-        $(this).closest("form").submit()
-
-      $(selectors.s3_form).trigger('submit')
+      $uploadForm.find("#upload_s3_path").val(content.filepath)
+      $($uploadForm).off 'submit'
+      $($uploadForm).submit()#rigger('submit')
 
   build_content_object = ($uploadForm, file, result) ->
     content = {}
@@ -269,7 +279,7 @@ $.fn.S3Uploader = (options) ->
       content.url            = $(result).find("Location").text()
       content.filepath       = $('<a />').attr('href', content.url)[0].pathname
     else # IE <= 9 retu      rn a null result object so we use the file object instead
-      domain                 = $uploadForm.attr('action')
+      domain                 = $uploadForm.data('s3-url')
       content.filepath       = $uploadForm.find('input[name=key]').val().replace('/${filename}', '')
       content.url            = domain + content.filepath + '/' + encodeURIComponent(file.name)
 

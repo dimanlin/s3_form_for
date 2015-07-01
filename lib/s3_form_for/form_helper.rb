@@ -1,6 +1,5 @@
 module S3DirectUpload
   module UploadHelper
-
     def s3_form_for(object, options = {}, &block)
       options.deep_symbolize_keys!
       uploader = S3Uploader.new(options)
@@ -8,7 +7,7 @@ module S3DirectUpload
 
       method = if (object.class == Array && !object.last.new_record?) || (object.class != Array && !object.new_record?)
                  {method: :put}
-               elsif object.new_record?
+               else
                  {method: :post}
                end
 
@@ -41,7 +40,7 @@ module S3DirectUpload
       end
 
       def form_options
-        {
+        option = {
           multipart: true,
           data: {
             s3_url: url,
@@ -50,6 +49,8 @@ module S3DirectUpload
             callback_param: @options[:callback_param]
           }.reverse_merge(@options[:data] || {})
         }.merge({html: @options[:html] || {}})
+        option.merge!(url: @options[:url]) if @options[:url].present?
+        option
       end
 
       def fields
@@ -70,7 +71,7 @@ module S3DirectUpload
       end
 
       def url
-        @options[:url] || "http#{@options[:ssl] ? 's' : ''}://#{@options[:region]}.amazonaws.com/#{@options[:bucket]}/"
+        @options[:s3_url] || "http#{@options[:ssl] ? 's' : ''}://#{@options[:region]}.amazonaws.com/#{@options[:bucket]}/"
       end
 
       def policy
